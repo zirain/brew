@@ -362,8 +362,9 @@ module Homebrew
           owner = Regexp.last_match(1)
           repo = Regexp.last_match(2)
           tag = Regexp.last_match(3)
+          release_url = "#{GitHub::API_URL}/repos/#{owner}/#{repo}/releases/tags/#{tag}"
           github_release_data = begin
-            GitHub::API.open_rest("#{GitHub::API_URL}/repos/#{owner}/#{repo}/releases/tags/#{tag}")
+            GitHub::API.open_rest(release_url)
           rescue GitHub::API::HTTPNotFoundError
             # If this is a 404: we can't do anything.
             nil
@@ -371,10 +372,13 @@ module Homebrew
 
           if github_release_data.present?
             pre = "pre" if github_release_data["prerelease"].present?
+            # if release notes are too long, just link to the release,
+            # otherwise your will receive a error: body is too long (maximum is 65536 characters).
+            pre_body = github_release_data["body"].present?.length < 65000 ? github_release_data["body"] : release_url
             pr_message += <<~XML
               <details>
                 <summary>#{pre}release notes</summary>
-                <pre>#{github_release_data["body"]}</pre>
+                <pre>#{pre_body}</pre>
               </details>
             XML
           end
