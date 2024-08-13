@@ -374,7 +374,7 @@ module Homebrew
             pre = "pre" if github_release_data["prerelease"].present?
             # if release notes are too long, just link to the release,
             # otherwise your will receive a error: body is too long (maximum is 65536 characters).
-            pre_body = github_release_data["body"].present?.length < 65000 ? github_release_data["body"] : release_url
+            pre_body = github_release_data["body"].length < 65000 ? github_release_data["body"] : release_url
             pr_message += <<~XML
               <details>
                 <summary>#{pre}release notes</summary>
